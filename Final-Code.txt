@@ -1,0 +1,78 @@
+#include <Wire.h> 
+#include<Servo.h>
+#include <LiquidCrystal_I2C.h>       
+LiquidCrystal_I2C lcd(0x27,16,2);
+
+int buzzer = 12;
+int flamePin = 11;
+int Flame = HIGH;
+int GASA0 = A0;
+int gasvalue;
+
+int servoPin = 2;
+Servo Servo1;
+
+void setup() {
+ lcd.begin();
+ lcd.backlight(); 
+ Serial.begin(9600);
+ pinMode(buzzer, OUTPUT);
+ pinMode(flamePin, INPUT);
+ //pinMode(GASA0, INPUT);
+ Servo1.attach(servoPin);     
+}
+
+void loop() {
+  int analogSensor = analogRead(GASA0);
+  int gasvalue = analogSensor;
+
+  Serial.print(gasvalue);
+  Serial.println("");
+  
+  lcd.setCursor(0,0);
+  //lcd.print("Smoke Level: ");
+  lcd.setCursor(13,0);
+  //lcd.print(gasvalue);
+  lcd.setCursor(14,0);
+  //lcd.print("%");
+
+  //Flame detection
+  Flame = digitalRead(flamePin);
+  Servo1.write(0);
+  // Checks if it has reached the threshold value
+
+  
+  if(gasvalue > 300)
+  {
+    lcd.setCursor(0,0);
+    lcd.print("Smoke Detected!!");
+    lcd.setCursor(0,1);
+    //lcd.print("Door Open");
+
+    //delay(1000);
+    digitalWrite(buzzer, HIGH);
+    delay(50); 
+    digitalWrite(buzzer, LOW);
+    delay(100);
+   // Servo1.write(90);
+    
+    }
+  else if (Flame == LOW)
+  {
+    lcd.setCursor(0,0);
+    lcd.print("Fire Attention!!");
+    lcd.setCursor(0,1);
+    lcd.print("Door Open");
+    
+    digitalWrite(buzzer, HIGH);
+    Servo1.write(90);
+  }
+  else
+  {
+  lcd.setCursor(0,1);
+  lcd.print("NORMAL");
+    noTone(buzzer); 
+  }
+  delay(500);
+  lcd.clear();
+}
